@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#081322">
-  <meta name="description" content="Snake: Neon Runner, a Lua and LOVE arcade game running in your browser.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Snake: Neon Runner, a Lua and LÖVE arcade game running in your browser.">
   <title>Snake: Neon Runner</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="player.css">
@@ -13,7 +15,10 @@
   <main class="arcade">
     <header class="topbar">
       <div><span class="eyebrow">LUA × LÖVE</span><h1>NEON RUNNER<span> / SNAKE</span></h1></div>
-      <button id="fullscreen" type="button">FULLSCREEN ↗</button>
+      <div class="topbar-actions">
+        <button id="toggle-controls" type="button" aria-pressed="true" title="Toggle On-Screen Controls">CONTROLS 🎮</button>
+        <button id="fullscreen" type="button">FULLSCREEN ↗</button>
+      </div>
     </header>
     <section class="game-frame" aria-label="Snake game">
       <canvas id="canvas" width="800" height="640" tabindex="0" aria-label="Snake Neon Runner. Enter starts; arrow keys or WASD move; P pauses; R restarts."></canvas>
@@ -24,8 +29,47 @@
         <button id="retry" type="button" hidden>TRY AGAIN</button>
       </div>
     </section>
+
+    <!-- Mobile Touch Arrow Controls -->
+    <section class="mobile-controls" id="mobile-controls" aria-label="Mobile snake controls">
+      <div class="dpad-container">
+        <div class="dpad" id="dpad" role="group" aria-label="Arrow keys to steer the snake">
+          <button class="dpad-btn dpad-up" id="btn-up" type="button" aria-label="Move Up" data-key="ArrowUp" data-code="ArrowUp" data-keycode="38">
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="currentColor"><path d="M12 4l-7 8h4.5v8h5v-8H19z"/></svg>
+          </button>
+          <button class="dpad-btn dpad-left" id="btn-left" type="button" aria-label="Move Left" data-key="ArrowLeft" data-code="ArrowLeft" data-keycode="37">
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="currentColor"><path d="M4 12l8-7v4.5h8v5h-8V19z"/></svg>
+          </button>
+          <div class="dpad-center" aria-hidden="true">
+            <span class="dpad-core"></span>
+          </div>
+          <button class="dpad-btn dpad-right" id="btn-right" type="button" aria-label="Move Right" data-key="ArrowRight" data-code="ArrowRight" data-keycode="39">
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="currentColor"><path d="M20 12l-8-7v4.5H4v5h8V19z"/></svg>
+          </button>
+          <button class="dpad-btn dpad-down" id="btn-down" type="button" aria-label="Move Down" data-key="ArrowDown" data-code="ArrowDown" data-keycode="40">
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="currentColor"><path d="M12 20l7-8h-4.5V4h-5v8H5z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-actions" role="group" aria-label="Game actions">
+        <button class="action-btn action-start" id="btn-start" type="button" aria-label="Start Game" data-key="Enter" data-code="Enter" data-keycode="13">
+          <span class="btn-icon">▶</span>
+          <span class="btn-label">START</span>
+        </button>
+        <button class="action-btn action-pause" id="btn-pause" type="button" aria-label="Pause Game" data-key="p" data-code="KeyP" data-keycode="80">
+          <span class="btn-icon">⏸</span>
+          <span class="btn-label">PAUSE</span>
+        </button>
+        <button class="action-btn action-restart" id="btn-restart" type="button" aria-label="Restart Game" data-key="r" data-code="KeyR" data-keycode="82">
+          <span class="btn-icon">↺</span>
+          <span class="btn-label">RESTART</span>
+        </button>
+      </div>
+    </section>
+
     <footer class="footer">
-      <p>Click the game to focus. <kbd>Enter</kbd> start · <kbd>WASD</kbd> / arrows move · <kbd>P</kbd> pause · <kbd>R</kbd> restart</p>
+      <p>Click game or use arrow buttons · <kbd>Enter</kbd> start · <kbd>WASD</kbd> / arrows move · <kbd>P</kbd> pause · <kbd>R</kbd> restart</p>
       <p class="credit">Made with Lua &amp; LÖVE · Web runtime: <a href="https://github.com/Davidobot/love.js" target="_blank" rel="noreferrer">love.js</a> · <a href="licenses/love.txt">Licenses</a></p>
     </footer>
   </main>

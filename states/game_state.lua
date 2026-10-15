@@ -83,6 +83,38 @@ function PlayingState:keypressed(key)
     self.input:handleKey(key)
 end
 
+function PlayingState:mousepressed(x, y, button)
+    if not self.game then return end
+    if self.game.gameOver or self.game.won then
+        self:enter()
+        return
+    end
+    if self.game.paused then
+        self.game.paused = false
+        return
+    end
+
+    local head = self.game.entity:getComponent("position")
+    if head then
+        local hx, hy = self.game:cellCenter(head)
+        local dx = x - hx
+        local dy = y - hy
+        if math.abs(dx) > math.abs(dy) then
+            if dx > 0 then
+                self.game:changeDirection(1, 0)
+            else
+                self.game:changeDirection(-1, 0)
+            end
+        else
+            if dy > 0 then
+                self.game:changeDirection(0, 1)
+            else
+                self.game:changeDirection(0, -1)
+            end
+        end
+    end
+end
+
 local function drawStat(fonts, label, value, x, color)
     local graphics = love.graphics
     Theme.panel(x, 22, 126, 62, 10, color)

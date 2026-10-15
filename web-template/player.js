@@ -73,3 +73,101 @@ window.addEventListener("error", function (event) {
 window.addEventListener("unhandledrejection", function (event) {
   showLoadError(event.reason && event.reason.message || event.reason || "Loading failed.");
 });
+
+/* Mobile On-Screen Arrow and Action Controls */
+(function setupMobileControls() {
+  var controls = document.getElementById("mobile-controls");
+  var toggleBtn = document.getElementById("toggle-controls");
+  if (!controls) return;
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", function () {
+      var isHidden = controls.classList.toggle("is-hidden");
+      toggleBtn.setAttribute("aria-pressed", (!isHidden).toString());
+      if (gameCanvas) {
+        try { gameCanvas.focus(); } catch (_) {}
+      }
+    });
+  }
+
+  function dispatchVirtualKey(type, code, key, keyCode) {
+    var event;
+    var eventInit = {
+      key: key,
+      code: code,
+      keyCode: keyCode,
+      which: keyCode,
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      view: window
+    };
+    try {
+      event = new KeyboardEvent(type, eventInit);
+    } catch (_) {
+      event = document.createEvent("Event");
+      event.initEvent(type, true, true);
+      event.key = key;
+      event.code = code;
+      event.keyCode = keyCode;
+      event.which = keyCode;
+    }
+
+    if (gameCanvas) {
+      try { gameCanvas.focus(); } catch (_) {}
+      gameCanvas.dispatchEvent(event);
+    }
+    window.dispatchEvent(event);
+    document.dispatchEvent(event);
+  }
+
+  function bindTouchButton(button) {
+    var key = button.getAttribute("data-key");
+    var code = button.getAttribute("data-code");
+    var keyCode = parseInt(button.getAttribute("data-keycode"), 10) || 0;
+    var pressed = false;
+
+    function handlePress(e) {
+      if (e) {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }
+      if (pressed) return;
+      pressed = true;
+      button.classList.add("is-active");
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(12); } catch (_) {}
+      }
+
+      dispatchVirtualKey("keydown", code, key, keyCode);
+    }
+
+    function handleRelease(e) {
+      if (e) {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+      }
+      if (!pressed) return;
+      pressed = false;
+      button.classList.remove("is-active");
+
+      dispatchVirtualKey("keyup", code, key, keyCode);
+    }
+
+    // Touch events for mobile
+    button.addEventListener("touchstart", handlePress, { passive: false });
+    button.addEventListener("touchend", handleRelease, { passive: false });
+    button.addEventListener("touchcancel", handleRelease, { passive: false });
+
+    // Mouse events for testing on desktop
+    button.addEventListener("mousedown", handlePress);
+    button.addEventListener("mouseup", handleRelease);
+    button.addEventListener("mouseleave", handleRelease);
+  }
+
+  var buttons = controls.querySelectorAll("[data-code]");
+  for (var i = 0; i < buttons.length; i++) {
+    bindTouchButton(buttons[i]);
+  }
+})();

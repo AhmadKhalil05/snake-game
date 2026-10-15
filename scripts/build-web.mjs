@@ -25,6 +25,7 @@ try {
     if (entry.endsWith('.lua') || entry === 'states') cpSync(join(root, entry), join(game, entry), { recursive: true });
   }
   run('zip', ['-q', '-9', '-r', archive, '.'], game);
+  cpSync(archive, join(root, 'Snake.love'));
   run(process.platform === 'win32' ? 'npx.cmd' : 'npx', [
     '--yes', `--package=${runtime}`, 'love.js', '-c', '-t', 'Snake: Neon Runner',
     '-m', '67108864', archive, web

@@ -51,6 +51,12 @@ function love.mousepressed(x, y, button)
     gameState:mousepressed(x, y, button)
 end
 
+function love.touchpressed(id, x, y, dx, dy, pressure)
+    local w = love.graphics.getWidth()
+    local h = love.graphics.getHeight()
+    gameState:mousepressed(x * w, y * h, 1)
+end
+
 function love.focus(focused)
     -- Pause when switching apps so the snake does not hit a wall unattended.
     if not focused and gameState and gameState.current == "playing" then
