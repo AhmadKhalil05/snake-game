@@ -3,6 +3,14 @@ Snake: Neon Runner — validation record
 
 GitHub + Cloudflare deployment bundle
 ------------------------------------
+- Fixed a browser startup crash caused by disabling t.modules.audio.
+  The shipped compatibility WASM Event::pump calls the OpenAL pool update
+  unconditionally; without audio initialization its mutex reference is null.
+  The reported stack PCs 0x751aa -> 0x675d0 -> 0x5ca9b -> 0xcaed9 map to
+  event pump -> audio pool update -> mutex lock, confirming this dependency.
+- conf.lua now keeps the audio module enabled. No audio assets are required.
+- Rebuilt game.data and game.js with fresh loader package metadata.
+- Only conf.lua, web/game.data and web/game.js must change in the deployed repo.
 - Built web/ with the upstream love.js compatibility runtime at commit
   c4f04e185033a7c9fbefa9be3bec88c41a90421b.
 - WebAssembly.validate passed for love.wasm.

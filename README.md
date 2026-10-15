@@ -28,6 +28,11 @@ runtime, pinned to upstream commit
 fullscreen control. The native Lua 5.4 `<close>` implementation remains part of
 the assignment source; the browser uses the compatible persistence backend.
 
+Keep `t.modules.audio = true` even if the game has no sound assets. The shipped
+compatibility runtime updates its audio pool during event pumping and crashes
+if that subsystem has not been initialized. After updating from the original
+web bundle, replace `conf.lua`, `web/game.data`, and `web/game.js` in GitHub.
+
 The bundle was built and statically checked, but its final browser interaction
 test must be performed after deployment. The game currently requires a keyboard.
 

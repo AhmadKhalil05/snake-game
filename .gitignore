@@ -1,0 +1,6 @@
+scores/
+highscore.txt
+*.love
+.DS_Store
+node_modules/
+.web-build-*/

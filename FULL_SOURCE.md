@@ -15,8 +15,9 @@ function love.conf(t)
     t.window.vsync = 1
     t.window.highdpi = false
 
-    -- This project uses procedural shapes only; no audio or physics assets are required.
-    t.modules.audio = false
+    -- Keep audio enabled even without sound assets: love.js compatibility mode
+    -- updates the OpenAL pool from Event::pump and needs it initialized.
+    t.modules.audio = true
     t.modules.physics = false
     t.modules.joystick = false
 end
