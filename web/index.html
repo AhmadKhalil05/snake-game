@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081322">
+  <meta name="description" content="Snake: Neon Runner, a Lua and LOVE arcade game running in your browser.">
+  <title>Snake: Neon Runner</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="player.css">
+</head>
+<body>
+  <main class="arcade">
+    <header class="topbar">
+      <div><span class="eyebrow">LUA × LÖVE</span><h1>NEON RUNNER<span> / SNAKE</span></h1></div>
+      <button id="fullscreen" type="button">FULLSCREEN ↗</button>
+    </header>
+    <section class="game-frame" aria-label="Snake game">
+      <canvas id="canvas" width="800" height="640" tabindex="0" aria-label="Snake Neon Runner. Enter starts; arrow keys or WASD move; P pauses; R restarts."></canvas>
+      <div id="loading" role="status" aria-live="polite">
+        <div class="loader-mark">S</div>
+        <strong id="status">Loading the arcade…</strong>
+        <span id="loading-hint">Downloading the LÖVE engine. The first visit may take a moment.</span>
+        <button id="retry" type="button" hidden>TRY AGAIN</button>
+      </div>
+    </section>
+    <footer class="footer">
+      <p>Click the game to focus. <kbd>Enter</kbd> start · <kbd>WASD</kbd> / arrows move · <kbd>P</kbd> pause · <kbd>R</kbd> restart</p>
+      <p class="credit">Made with Lua &amp; LÖVE · Web runtime: <a href="https://github.com/Davidobot/love.js" target="_blank" rel="noreferrer">love.js</a> · <a href="licenses/love.txt">Licenses</a></p>
+    </footer>
+  </main>
+  <script src="player.js"></script>
+  <script src="game.js"></script>
+  <script src="love.js" onload="startLove()" onerror="showLoadError('The game engine could not be downloaded. Please try again.')"></script>
+</body>
+</html>

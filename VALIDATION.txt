@@ -1,0 +1,48 @@
+Snake: Neon Runner — validation record
+=======================================
+
+GitHub + Cloudflare deployment bundle
+------------------------------------
+- Built web/ with the upstream love.js compatibility runtime at commit
+  c4f04e185033a7c9fbefa9be3bec88c41a90421b.
+- WebAssembly.validate passed for love.wasm.
+- JavaScript syntax checks passed for runtime, loader, player, and build script.
+- Referenced local HTML resources exist; output shell matches its templates.
+- Every Lua file inside web/game.data matches the project source.
+- Lua 5.4: 32 passed; LuaJIT: 32 passed (including first browser-save checks).
+- Browser graphics and interaction for this web build have NOT been tested.
+  A browser QA capability is unavailable in this environment.
+- DEPLOY_AR.md contains the complete account-side deployment instructions.
+- No GitHub repository or Cloudflare project was created in this environment.
+- Cloudflare Pages: main branch, no framework, build exit 0, output web.
+
+Visual revision
+---------------
+- Added theme.lua: procedural neon background, panels, glow, badges, and keycaps.
+- Added effects.lua: visual-only particles, rings, and screen-feedback effects.
+- Reworked menu_state.lua and game_state.lua into the Neon Runner presentation.
+- Reworked snake_game.lua rendering while preserving the required movement,
+  food, growth, collision, component, Vector2, score, and event behavior.
+- No image, font, sound, package, or third-party game asset is required.
+
+Lua-only checks
+---------------
+- Lua 5.4: 32 passed, 0 failed.
+  Includes the real highscore54.lua to-be-closed (<close>) error-path check.
+- LuaJIT / Lua 5.1 language mode: 32 passed, 0 failed.
+  This is the compatibility path used by ordinary LOVE 11.5.
+
+LOVE 11.5 graphical checks
+--------------------------
+- Ran the unchanged production entry point through a separate automated harness.
+- Verified: initial menu, Enter start, drawing, focus pauses, P resumes,
+  R restarts, Esc returns to menu, and mouse START RUN begins a round.
+- Ran with SDL's offscreen video driver on Linux for automated graphical QA.
+  This validates LOVE rendering and callbacks, not a physical macOS desktop.
+- Captured current menu and playing-screen previews from that LOVE run.
+
+Compatibility note
+------------------
+Ordinary LOVE 11.5 uses LuaJIT, so highscore.lua selects love.filesystem there.
+highscore54.lua contains the requested native Lua 5.4 <close> implementation;
+it is selected only by a Lua 5.4-capable interpreter or a Lua 5.4-built LOVE.

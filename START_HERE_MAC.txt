@@ -1,0 +1,12 @@
+SNAKE: NEON RUNNER — MAC START
+
+1. Drag THIS FOLDER (Snake_Neon_Runner_DEPLOY) onto the LOVE application.
+   main.lua is directly inside this folder, which LOVE requires.
+
+2. Or drag Snake.love onto LOVE.
+
+3. To edit code, open this folder in Cursor.
+
+Do not drag the outer ZIP file.
+
+Controls: Enter starts | Arrow keys / WASD move | P pause | R restart | Esc menu
