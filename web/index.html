@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#081322">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Snake: Neon Runner, a Lua and LÖVE arcade game running in your browser.">
+  <meta name="description" content="Snake: Neon Runner, a next-gen Lua & LÖVE arcade simulation running in your browser.">
   <title>Snake: Neon Runner</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="player.css">
@@ -14,18 +14,22 @@
 <body>
   <main class="arcade">
     <header class="topbar">
-      <div><span class="eyebrow">LUA × LÖVE</span><h1>NEON RUNNER<span> / SNAKE</span></h1></div>
+      <div>
+        <span class="eyebrow">LUA × LÖVE // CYBERNETIC ARCADE</span>
+        <h1>NEON RUNNER<span> / SNAKE</span></h1>
+      </div>
       <div class="topbar-actions">
+        <button id="btn-sound" type="button" aria-pressed="true" title="Toggle Audio (M)">SOUND 🔊</button>
         <button id="toggle-controls" type="button" aria-pressed="true" title="Toggle On-Screen Controls">CONTROLS 🎮</button>
         <button id="fullscreen" type="button">FULLSCREEN ↗</button>
       </div>
     </header>
     <section class="game-frame" aria-label="Snake game">
-      <canvas id="canvas" width="800" height="640" tabindex="0" aria-label="Snake Neon Runner. Enter starts; arrow keys or WASD move; P pauses; R restarts."></canvas>
+      <canvas id="canvas" width="800" height="640" tabindex="0" aria-label="Snake Neon Runner. Enter starts; arrow keys or WASD move; P pauses; M mutes; R restarts."></canvas>
       <div id="loading" role="status" aria-live="polite">
         <div class="loader-mark">S</div>
         <strong id="status">Loading the arcade…</strong>
-        <span id="loading-hint">Downloading the LÖVE engine. The first visit may take a moment.</span>
+        <span id="loading-hint">Initializing procedural engine and audio synthesizer.</span>
         <button id="retry" type="button" hidden>TRY AGAIN</button>
       </div>
     </section>
@@ -69,8 +73,8 @@
     </section>
 
     <footer class="footer">
-      <p>Click game or use arrow buttons · <kbd>Enter</kbd> start · <kbd>WASD</kbd> / arrows move · <kbd>P</kbd> pause · <kbd>R</kbd> restart</p>
-      <p class="credit">Made with Lua &amp; LÖVE · Web runtime: <a href="https://github.com/Davidobot/love.js" target="_blank" rel="noreferrer">love.js</a> · <a href="licenses/love.txt">Licenses</a></p>
+      <p>Click game or use arrow buttons · <kbd>Enter</kbd> start · <kbd>WASD</kbd> / arrows move · <kbd>P</kbd> pause · <kbd>M</kbd> audio · <kbd>R</kbd> restart</p>
+      <p class="credit">Next-Gen Cyber Neon Arcade · Made with Lua &amp; LÖVE · <a href="licenses/love.txt">Licenses</a></p>
     </footer>
   </main>
   <script src="player.js"></script>

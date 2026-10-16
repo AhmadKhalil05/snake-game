@@ -2,6 +2,7 @@
 local GameState = require("gamestate")
 local HighScore = require("highscore")
 local Theme = require("theme")
+local Audio = require("audio")
 local gameState
 
 if not love then
@@ -17,7 +18,8 @@ function love.load()
 
     local context = {
         highScore = HighScore:new(),
-        stars = Theme.createStars(88, 800, 640),
+        audio = Audio:new(),
+        stars = Theme.createStars(96, 800, 640),
         fonts = {
             title = love.graphics.newFont(58),
             display = love.graphics.newFont(36),
@@ -42,6 +44,12 @@ end
 function love.keypressed(key)
     if key == "f5" then
         love.event.quit("restart")
+        return
+    end
+    if key == "m" then
+        if gameState and gameState.context and gameState.context.audio then
+            gameState.context.audio:toggleMute()
+        end
         return
     end
     gameState:keypressed(key)

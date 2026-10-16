@@ -32,6 +32,12 @@ function SnakeGame:new(options)
     game.saveError = nil
     game.visualTime = 0
 
+    -- Modern combo mechanic
+    game.combo = 1
+    game.comboTimer = 0
+    game.maxCombo = 1
+    game.comboMaxTime = 3.6
+
     local headX = math.floor(game.columns / 2)
     local headY = math.floor(game.rows / 2)
     local initialLength = math.min(options.initialLength or 3, headX + 1)
@@ -51,9 +57,9 @@ function SnakeGame:new(options)
     })
     game.entity:addComponent("renderer", {
         size = options.cellSize or 20,
-        color = {0.10, 0.64, 0.42},
-        tailColor = {0.12, 0.34, 0.42},
-        headColor = {0.40, 1.00, 0.67}
+        color = {0.12, 0.78, 0.46},
+        tailColor = {0.00, 0.94, 1.00},
+        headColor = {0.24, 1.00, 0.68}
     })
     assert(game.entity:getComponent("movement").interval > 0,
         "Movement interval must be positive")
@@ -113,7 +119,7 @@ function SnakeGame:_finish(reason)
     self.reason = reason
     self:_saveBest()
     self.events:emit("game_over", {
-        score = self.score, best = self.best, reason = reason
+        score = self.score, best = self.best, reason = reason, maxCombo = self.maxCombo
     })
 end
 
@@ -167,11 +173,20 @@ function SnakeGame:_step()
 
     if eating then
         self.score = self.score + 1
+        if self.comboTimer > 0 then
+            self.combo = self.combo + 1
+        else
+            self.combo = 1
+        end
+        self.maxCombo = math.max(self.maxCombo, self.combo)
+        self.comboTimer = self.comboMaxTime
+
         self:_saveBest()
         self.events:emit("food_eaten", {
             score = self.score,
             length = #self.snake,
-            position = nextHead
+            position = nextHead,
+            combo = self.combo
         })
         self:spawnFood()
     else
@@ -185,6 +200,14 @@ function SnakeGame:update(dt)
     end
     if self.gameOver or self.paused or dt <= 0 then
         return
+    end
+
+    -- Update combo decay
+    if self.comboTimer > 0 then
+        self.comboTimer = math.max(0, self.comboTimer - dt)
+        if self.comboTimer == 0 then
+            self.combo = 1
+        end
     end
 
     local movement = self.entity:getComponent("movement")
@@ -203,116 +226,22 @@ function SnakeGame:togglePause()
 end
 
 function SnakeGame:draw(time)
-    local graphics = love.graphics
+    if not love or not love.graphics then return end
     local renderer = self.entity:getComponent("renderer")
     local cellSize = renderer.size
-    local boardWidth = self.columns * cellSize
-    local boardHeight = self.rows * cellSize
     time = time or self.visualTime
 
-    -- Framed board with a soft cyan halo.
-    Theme.glowRect(self.originX - 8, self.originY - 8,
-        boardWidth + 16, boardHeight + 16, 13, Theme.colors.cyan, 0.075, 5)
-    graphics.setColor(0.012, 0.024, 0.049, 0.98)
-    graphics.rectangle("fill", self.originX - 7, self.originY - 7,
-        boardWidth + 14, boardHeight + 14, 12, 12)
-    graphics.setColor(0.075, 0.12, 0.19, 1)
-    graphics.rectangle("fill", self.originX, self.originY, boardWidth, boardHeight, 6, 6)
+    -- 1. Draw glowing Cyber-Grid Arena
+    Theme.drawGridArena(self.originX, self.originY, self.columns, self.rows, cellSize, time)
 
-    -- The grid is deliberately quiet so the snake and food stay dominant.
-    graphics.setLineWidth(1)
-    for x = 1, self.columns - 1 do
-        local pixelX = self.originX + x * cellSize
-        local major = x % 6 == 0
-        graphics.setColor(0.18, 0.38, 0.50, major and 0.18 or 0.075)
-        graphics.line(pixelX, self.originY, pixelX, self.originY + boardHeight)
-    end
-    for y = 1, self.rows - 1 do
-        local pixelY = self.originY + y * cellSize
-        local major = y % 6 == 0
-        graphics.setColor(0.18, 0.38, 0.50, major and 0.18 or 0.075)
-        graphics.line(self.originX, pixelY, self.originX + boardWidth, pixelY)
-    end
-
-    -- Corner indicators make the board read as a neon terminal panel.
-    local corner = 23
-    graphics.setColor(Theme.colors.cyan[1], Theme.colors.cyan[2], Theme.colors.cyan[3], 0.82)
-    graphics.line(self.originX - 7, self.originY + corner, self.originX - 7, self.originY - 1)
-    graphics.line(self.originX - 7, self.originY - 7, self.originX + corner, self.originY - 7)
-    graphics.line(self.originX + boardWidth - corner, self.originY - 7,
-        self.originX + boardWidth + 7, self.originY - 7)
-    graphics.line(self.originX + boardWidth + 7, self.originY - 7,
-        self.originX + boardWidth + 7, self.originY + corner)
-    graphics.line(self.originX - 7, self.originY + boardHeight - corner,
-        self.originX - 7, self.originY + boardHeight + 7)
-    graphics.line(self.originX - 7, self.originY + boardHeight + 7,
-        self.originX + corner, self.originY + boardHeight + 7)
-    graphics.line(self.originX + boardWidth - corner, self.originY + boardHeight + 7,
-        self.originX + boardWidth + 7, self.originY + boardHeight + 7)
-    graphics.line(self.originX + boardWidth + 7, self.originY + boardHeight + 7,
-        self.originX + boardWidth + 7, self.originY + boardHeight - corner)
-
-    if self.food then
-        local foodX, foodY = self:cellCenter(self.food)
-        local pulse = Theme.pulse(time, 5.4)
-        Theme.glowCircle(foodX, foodY, cellSize * (0.54 + pulse * 0.14),
-            Theme.colors.pink, 0.09 + pulse * 0.045, 5)
-        graphics.setColor(Theme.colors.orange[1], Theme.colors.orange[2], Theme.colors.orange[3], 1)
-        graphics.circle("fill", foodX, foodY, cellSize * (0.24 + pulse * 0.025))
-        graphics.setColor(1, 0.90, 0.65, 0.95)
-        graphics.circle("fill", foodX - cellSize * 0.075, foodY - cellSize * 0.085, cellSize * 0.068)
-        graphics.setColor(Theme.colors.pink[1], Theme.colors.pink[2], Theme.colors.pink[3], 0.9)
-        graphics.setLineWidth(1.5)
-        graphics.circle("line", foodX, foodY, cellSize * (0.32 + pulse * 0.045))
-    end
-
-    local totalSegments = math.max(1, #self.snake - 1)
-    for i = #self.snake, 1, -1 do
-        local segment = self.snake[i]
-        local depth = (i - 1) / totalSegments
-        local color = i == 1 and renderer.headColor
-            or Theme.mix(renderer.color, renderer.tailColor, depth * 0.70)
-        local x = self.originX + segment.x * cellSize
-        local y = self.originY + segment.y * cellSize
-        local padding = i == 1 and 1.5 or 2.2
-        local segmentSize = cellSize - padding * 2
-
-        if i <= 16 then
-            Theme.glowRect(x + padding, y + padding, segmentSize, segmentSize, 6,
-                color, i == 1 and 0.17 or 0.055, 3)
-        end
-        graphics.setColor(color[1], color[2], color[3], 1)
-        graphics.rectangle("fill", x + padding, y + padding, segmentSize, segmentSize, 5, 5)
-        graphics.setColor(0.82, 1.0, 0.92, i == 1 and 0.58 or 0.20)
-        graphics.rectangle("line", x + padding + 0.5, y + padding + 0.5,
-            segmentSize - 1, segmentSize - 1, 4, 4)
-        graphics.setColor(1, 1, 1, i == 1 and 0.19 or 0.075)
-        graphics.rectangle("fill", x + padding + 3, y + padding + 3,
-            math.max(2, segmentSize - 7), 2, 2, 2)
-    end
-
-    -- Two directional eyes make the head feel alive without a sprite asset.
+    -- 2. Draw Living Plasma Food
     local head = self.entity:getComponent("position")
-    local movement = self.entity:getComponent("movement")
-    local headX, headY = self:cellCenter(head)
-    local forward = cellSize * 0.17
-    local sideways = cellSize * 0.18
-    local eyeBaseX = headX + movement.dx * forward
-    local eyeBaseY = headY + movement.dy * forward
-    graphics.setColor(0.015, 0.055, 0.06, 1)
-    graphics.circle("fill", eyeBaseX - movement.dy * sideways, eyeBaseY + movement.dx * sideways, 2.25)
-    graphics.circle("fill", eyeBaseX + movement.dy * sideways, eyeBaseY - movement.dx * sideways, 2.25)
-    graphics.setColor(0.80, 1, 0.95, 0.9)
-    graphics.circle("fill", eyeBaseX - movement.dy * sideways - movement.dx * 0.5,
-        eyeBaseY + movement.dx * sideways - movement.dy * 0.5, 0.65)
-    graphics.circle("fill", eyeBaseX + movement.dy * sideways - movement.dx * 0.5,
-        eyeBaseY - movement.dx * sideways - movement.dy * 0.5, 0.65)
+    local isNear = (self.food and head) and (math.abs(self.food.x - head.x) + math.abs(self.food.y - head.y) <= 4)
+    Theme.drawFood(self.food, cellSize, self.originX, self.originY, time, isNear)
 
-    graphics.setColor(Theme.colors.cyan[1], Theme.colors.cyan[2], Theme.colors.cyan[3], 0.62)
-    graphics.setLineWidth(1)
-    graphics.rectangle("line", self.originX - 0.5, self.originY - 0.5,
-        boardWidth + 1, boardHeight + 1, 6, 6)
-    graphics.setColor(1, 1, 1, 1)
+    -- 3. Draw Organic Cybernetic Snake
+    local movement = self.entity:getComponent("movement")
+    Theme.drawSnake(self.snake, movement, renderer, cellSize, self.originX, self.originY, time)
 end
 
 return SnakeGame

@@ -69,6 +69,10 @@ button:hover {
   background: #15313a;
   border-color: #53e4bf;
 }
+#btn-sound[aria-pressed="false"] {
+  color: #fb923c;
+  border-color: #8c4220;
+}
 button:focus-visible, canvas:focus-visible {
   outline: 2px solid #53e4bf;
   outline-offset: 4px;

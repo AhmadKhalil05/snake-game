@@ -28,7 +28,7 @@ var Module = {
   monitorRunDependencies: function (left) {
     this.remainingDependencies = left;
     this.totalDependencies = Math.max(this.totalDependencies, left);
-    Module.setStatus(left ? "Preparing the game…" : "Starting Neon Runner…");
+    Module.setStatus(left ? "Preparing cyber engine…" : "Starting Neon Runner…");
   },
   onAbort: function (reason) { showLoadError(reason || "Reload the page and try again."); }
 };
@@ -74,21 +74,23 @@ window.addEventListener("unhandledrejection", function (event) {
   showLoadError(event.reason && event.reason.message || event.reason || "Loading failed.");
 });
 
+// Auto-resume Web Audio context on user gesture
+function unlockAudio() {
+  if (Module && Module.SDL2 && Module.SDL2.audioContext && Module.SDL2.audioContext.state === "suspended") {
+    Module.SDL2.audioContext.resume().catch(function () {});
+  }
+}
+["click", "touchstart", "keydown"].forEach(function (evt) {
+  window.addEventListener(evt, unlockAudio, { passive: true });
+});
+
 /* Mobile On-Screen Arrow and Action Controls */
 (function setupMobileControls() {
   var controls = document.getElementById("mobile-controls");
   var toggleBtn = document.getElementById("toggle-controls");
+  var soundBtn = document.getElementById("btn-sound");
+  var isMuted = false;
   if (!controls) return;
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", function () {
-      var isHidden = controls.classList.toggle("is-hidden");
-      toggleBtn.setAttribute("aria-pressed", (!isHidden).toString());
-      if (gameCanvas) {
-        try { gameCanvas.focus(); } catch (_) {}
-      }
-    });
-  }
 
   function dispatchVirtualKey(type, code, key, keyCode) {
     var event;
@@ -121,6 +123,32 @@ window.addEventListener("unhandledrejection", function (event) {
     document.dispatchEvent(event);
   }
 
+  if (soundBtn) {
+    soundBtn.addEventListener("click", function () {
+      isMuted = !isMuted;
+      soundBtn.textContent = isMuted ? "MUTED 🔇" : "SOUND 🔊";
+      soundBtn.setAttribute("aria-pressed", (!isMuted).toString());
+      dispatchVirtualKey("keydown", "KeyM", "m", 77);
+      setTimeout(function () {
+        dispatchVirtualKey("keyup", "KeyM", "m", 77);
+      }, 50);
+      unlockAudio();
+      if (gameCanvas) {
+        try { gameCanvas.focus(); } catch (_) {}
+      }
+    });
+  }
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", function () {
+      var isHidden = controls.classList.toggle("is-hidden");
+      toggleBtn.setAttribute("aria-pressed", (!isHidden).toString());
+      if (gameCanvas) {
+        try { gameCanvas.focus(); } catch (_) {}
+      }
+    });
+  }
+
   function bindTouchButton(button) {
     var key = button.getAttribute("data-key");
     var code = button.getAttribute("data-code");
@@ -136,6 +164,7 @@ window.addEventListener("unhandledrejection", function (event) {
       pressed = true;
       button.classList.add("is-active");
 
+      unlockAudio();
       if (navigator.vibrate) {
         try { navigator.vibrate(12); } catch (_) {}
       }

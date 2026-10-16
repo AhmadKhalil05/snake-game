@@ -2,7 +2,7 @@ local GameState = {}
 GameState.__index = GameState
 
 function GameState:new(context)
-    local manager = setmetatable({states = {}, current = nil}, GameState)
+    local manager = setmetatable({states = {}, current = nil, context = context}, GameState)
     manager.states.menu = require("states.menu_state"):new(manager, context)
     manager.states.playing = require("states.game_state"):new(manager, context)
     manager:switch("menu")
